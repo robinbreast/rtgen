@@ -1,8 +1,8 @@
 use anyhow::{Context, Result};
 use clap::Parser;
+use serde::Deserialize;
 use std::fs;
 use std::path;
-use serde::Deserialize;
 
 /// tmpgen command line arguments
 #[derive(Parser, Debug)]
@@ -32,9 +32,9 @@ struct Group {
 }
 #[derive(Debug, Deserialize)]
 struct Content {
-    #[serde(default="default_dataset")]
+    #[serde(default = "default_dataset")]
     dataset: Vec<Data>,
-    #[serde(default="default_groupset")]
+    #[serde(default = "default_groupset")]
     groupset: Vec<Group>,
 }
 fn default_dataset() -> Vec<Data> {
