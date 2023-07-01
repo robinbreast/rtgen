@@ -1,2 +1,2 @@
-# tmpgen
-template based text generator
+# rtgen
+Regex and Template based text GENerator
