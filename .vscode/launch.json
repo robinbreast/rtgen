@@ -1,0 +1,68 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug unit tests in library 'rtgen'",
+			"cargo": {
+				"args": [
+					"test",
+					"--no-run",
+					"--lib",
+					"--package=rtgen"
+				],
+				"filter": {
+					"name": "rtgen",
+					"kind": "lib"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug executable 'rtgen'",
+			"cargo": {
+				"args": [
+					"build",
+					"--bin=rtgen",
+					"--package=rtgen"
+				],
+				"filter": {
+					"name": "rtgen",
+					"kind": "bin"
+				}
+			},
+			"args": [
+				"--context-json", "./example/cyagen/cyagen.json",
+				"--input-source", "./example/cyagen/sample.c",
+				"--debug-json", "./.output/debug.json"
+			],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug unit tests in executable 'rtgen'",
+			"cargo": {
+				"args": [
+					"test",
+					"--no-run",
+					"--bin=rtgen",
+					"--package=rtgen"
+				],
+				"filter": {
+					"name": "rtgen",
+					"kind": "bin"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		}
+	]
+}

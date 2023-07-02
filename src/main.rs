@@ -4,7 +4,7 @@ use regex::Regex;
 use serde_json;
 use std::collections::HashMap;
 use std::fs;
-use std::path;
+use std::path::Path;
 
 /// command line arguments
 #[derive(Parser, Debug)]
@@ -15,30 +15,31 @@ struct Args {
     input_source: Option<String>,
     /// input context json file path
     #[clap(short, long)]
-    input_json: String,
+    context_json: String,
     /// template directory
     #[clap(short, long)]
     template_dir: Option<String>,
     /// output directory
     #[clap(short, long)]
     output_dir: Option<String>,
-    /// output json file path
+    /// debug json file path
     #[clap(short, long)]
-    output_json: Option<String>,
+    debug_json: Option<String>,
 }
 
 fn main() -> Result<()> {
     let args = Args::parse();
 
     // read input json file
-    let input_json_file = fs::File::open(&args.input_json).unwrap();
-    let mut input_json_obj: serde_json::Value = serde_json::from_reader(input_json_file).unwrap();
+    let context_json = fs::File::open(&args.context_json)
+        .expect(&format!("failed to open {}", &args.context_json));
+    let mut context_json: serde_json::Value = serde_json::from_reader(context_json).unwrap();
 
     // read source file
     if let Some(input_source_filepath) = &args.input_source {
         let input_source = fs::read_to_string(&input_source_filepath)
             .with_context(|| format!("failed to open file `{}`", &input_source_filepath))?;
-        if let Some(regset) = input_json_obj.get("regset").cloned() {
+        if let Some(regset) = context_json.get("regset").cloned() {
             if regset.is_array() {
                 for item in regset.as_array().unwrap() {
                     // Convert the item to a HashMap
@@ -47,11 +48,21 @@ fn main() -> Result<()> {
                     // Access the values in the HashMap
                     let name = item_map.get("name").unwrap().to_string();
                     let regex_str = item_map.get("regex").unwrap().to_string();
-                    let _ =
-                        update_json_object(&mut input_json_obj, &input_source, &name, &regex_str);
+                    let _ = update_json_object(&mut context_json, &input_source, &name, &regex_str);
                 }
             }
         }
+    }
+    if let Some(debug_json) = &args.debug_json {
+        let dirpath = Path::new(&debug_json)
+            .parent()
+            .unwrap_or_else(|| Path::new("./"));
+        if !dirpath.exists() {
+            fs::create_dir_all(&dirpath).with_context(|| {
+                format!("failed to create folder `{}`", dirpath.to_string_lossy())
+            })?;
+        }
+        let _ = generate_json(&context_json, debug_json);
     }
     /*
         if path::Path::new(&args.output_dirname).exists() {
@@ -99,5 +110,12 @@ fn update_json_object(
         }
     }
     map.insert(dataset_name.to_string(), serde_json::Value::Array(result));
+    Ok(())
+}
+
+pub fn generate_json(json_object: &serde_json::Value, filepath: &String) -> Result<()> {
+    let file = fs::File::create(filepath)
+        .with_context(|| format!("failed to create file `{}`", filepath))?;
+    serde_json::to_writer(file, json_object)?;
     Ok(())
 }

@@ -1,0 +1,16 @@
+{
+    "regset": [
+        {
+            "name": "incs",
+            "regex": "(?<captured>#include[\\s]+[\"<].+[\">])"
+        },
+        {
+            "name": "vars",
+            "regex": "(?i)(?<keyword>static\\s+|static\\s+const\\s+|const\\s+static\\s+)+(?<dtype>.*?)(?<name>\\w+)\\s*(?:\\[(?<array_size>.*?)\\])?\\s*(?:=\\s*(?<value>\\{.*?\\}|.*?))?;"
+        },
+        {
+            "name": "fncs",
+            "regex": "((?<return>\\w+[\\w\\s\\*]*\\s+)|FUNC\\((?<return_ex>[^,]+),[^\\)]+\\)\\s*)(?<name>\\w+)[\\w]*\\s*\\((?<args>[^=!><>;\\(\\)-]*)\\)\\s*\\{"
+        }
+    ]
+}
